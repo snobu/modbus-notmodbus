@@ -1,9 +1,9 @@
 ﻿using System;
-using Microsoft.Azure.Devices.Shared;
+using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 
 namespace modbus_notmodbus
 {
@@ -12,32 +12,24 @@ namespace modbus_notmodbus
         static async Task Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
-                                                              Console.WriteLine(
-                                                                  $"[BombSquad][EXCEPTION] {eventArgs.ExceptionObject}");
-            ;
+                Misc.LogException($"[GLOBAL EXCEPTION HANDLER] {eventArgs.ExceptionObject}");
 
-            var builder = new ConfigurationBuilder()
-                          .SetBasePath(Directory.GetCurrentDirectory())
-                          .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                          .AddEnvironmentVariables();
+            Misc.LogInfo("Press CTRL + C to exit the program.");
 
-            IConfiguration config = builder.Build();
+            IConfiguration config = Misc.ParseConfig();
+            ModbusAdvocate modbusAdvocate = new ModbusAdvocate();
 
-            var mbOperator = new ModbusOperator();
-
-            var modbusPort = Convert.ToInt16(config.GetConnectionString("modbusPort"));
-
-            await mbOperator.InitAsync(config.GetConnectionString("modbusHost"),
+            int modbusPort = Convert.ToInt32(config.GetConnectionString("modbusPort"));
+            await modbusAdvocate.InitAsync(config.GetConnectionString("modbusHost"),
                                        modbusPort,
-                                       config.GetConnectionString("deviceConnStr"),
-                                       PropertyUpdateCallback, "ModbusDeviceId");
+                                       config.GetConnectionString("iotHubDeviceConnStr"),
+                                       PropertyUpdateCallback);
 
-            Console.WriteLine("Press CTRL+C to exit the program!");
             while (true)
             {
-                var currentObject = await mbOperator.GetDataAsync();
-                if (currentObject != null)
-                    await mbOperator.SendMessageToIotHubAsync(currentObject);
+                TelemetryPoint sensorData = await modbusAdvocate.GetDataAsync();
+                if (sensorData != null)
+                    await modbusAdvocate.SendMessageToIotHubAsync(sensorData);
             }
 
             async Task PropertyUpdateCallback(TwinCollection twinProperties, object userContext)
@@ -45,26 +37,27 @@ namespace modbus_notmodbus
                 Console.WriteLine();
                 foreach (var prop in twinProperties)
                 {
-                    var pair = (KeyValuePair<string, object>) prop;
-                    Console.WriteLine($"[DEBUG] desiredProp: {pair.Key} = {pair.Value}");
+                    var pair = (KeyValuePair<string, object>)prop;
+                    Misc.LogDebug($"desiredProp: {pair.Key} = {pair.Value}");
                 }
 
-                if (twinProperties["pollingInterval"] != ModbusOperator.PoolingInterval)
+                if (twinProperties["pollingInterval"] != ModbusAdvocate.PollingInterval)
                 {
-                    Console.WriteLine($"[DEBUG] Setting new pollingInterval: {twinProperties["pollingInterval"]}");
+                    Misc.LogDebug($"Setting new pollingInterval: {twinProperties["pollingInterval"]}");
                     try
                     {
-                        ModbusOperator.PoolingInterval = twinProperties["pollingInterval"];
+                        ModbusAdvocate.PollingInterval = twinProperties["pollingInterval"];
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"[EXCEPTION] Unable to set pollingInterval: {ex.Message}");
+                        Misc.LogException($"Unable to set pollingInterval: {ex.Message}");
                     }
                 }
 
-                var reportedProperties = new TwinCollection {["pollingInterval"] = ModbusOperator.PoolingInterval};
-                await mbOperator.Client.UpdateReportedPropertiesAsync(reportedProperties);
+                var reportedProperties = new TwinCollection { ["pollingInterval"] = ModbusAdvocate.PollingInterval };
+                await modbusAdvocate.Client.UpdateReportedPropertiesAsync(reportedProperties);
             }
+
         }
     }
 }
