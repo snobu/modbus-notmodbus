@@ -41,7 +41,6 @@ namespace modbus_notmodbus
             catch (Exception ex)
             {
                 Misc.LogException($"Exception while instantiating Modbus client: {ex.Message}");
-                await Misc.WaitFor(TimeSpan.FromSeconds(15));
             }
 
             deviceClient = DeviceClient.CreateFromConnectionString(deviceConnStr);
@@ -90,7 +89,8 @@ namespace modbus_notmodbus
                         Misc.LogException($"Exception while calling ReadRegistersAsync(): {ex.Message}\n" +
                             $"Stack Trace --\n{ex.StackTrace}");
                         modbusClientAlive = false;
-                        await Misc.WaitFor(TimeSpan.FromSeconds(10));
+
+                        return null;
                     }
 
                     TelemetryPoint sensorData = new TelemetryPoint()

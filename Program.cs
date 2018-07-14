@@ -30,6 +30,8 @@ namespace modbus_notmodbus
                 TelemetryPoint sensorData = await modbusAdvocate.GetDataAsync();
                 if (sensorData != null)
                     await modbusAdvocate.SendMessageToIotHubAsync(sensorData);
+                else
+                    await Misc.WaitFor(TimeSpan.FromSeconds(15));
             }
 
             async Task PropertyUpdateCallback(TwinCollection twinProperties, object userContext)
