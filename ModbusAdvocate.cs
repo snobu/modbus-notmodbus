@@ -90,7 +90,7 @@ namespace modbus_notmodbus
                         Misc.LogException($"Exception while calling ReadRegistersAsync(): {ex.Message}\n" +
                             $"Stack Trace --\n{ex.StackTrace}");
                         modbusClientAlive = false;
-                        await Misc.WaitFor(TimeSpan.FromSeconds(15));
+                        await Misc.WaitFor(TimeSpan.FromSeconds(10));
                     }
 
                     TelemetryPoint sensorData = new TelemetryPoint()
@@ -104,8 +104,8 @@ namespace modbus_notmodbus
                 }, ct);
 
             // The Modbus library does not time-bound its calls,
-            // abort task if execution takes longer than 9 seconds.
-            if (t.Wait(9000, ct))
+            // abort task if execution takes longer than 14 seconds.
+            if (t.Wait(14000, ct))
             {
                 t.Dispose();
                 return t;
