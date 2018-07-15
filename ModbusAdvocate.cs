@@ -14,14 +14,7 @@ namespace modbus_notmodbus
     {
         internal ModbusClient modbusClient;
         internal DeviceClient deviceClient;
-        internal static IConfiguration config = Misc.ParseConfig();
-        internal static string modbusHost = config.GetConnectionString("modbusHost");
-        internal static int modbusPort = Convert.ToInt32(config.GetConnectionString("modbusPort"));
-        internal int voltageRegisterOffset = Convert.ToInt32(config.GetConnectionString("voltageRegisterOffset"));
-        internal int voltageRegisterCount = Convert.ToInt32(config.GetConnectionString("voltageRegisterCount"));
-        internal int currentRegisterOffset = Convert.ToInt32(config.GetConnectionString("currentRegisterOffset"));
-        internal int currentRegisterCount = Convert.ToInt32(config.GetConnectionString("currentRegisterCount"));
-        public static uint PollingInterval = 11;
+        public static uint PollingInterval = AppSettings.pollingInterval;
         internal bool modbusClientAlive = false;
 
         public DeviceClient Client => deviceClient;
@@ -29,7 +22,7 @@ namespace modbus_notmodbus
         public async Task InitAsync(
             string host,
             int port,
-            string deviceConnStr,
+            string iotHubDeviceConnStr,
             DesiredPropertyUpdateCallback desiredPropertyUpdateCallback)
         {
             modbusClient = new ModbusClient(host, port);
@@ -43,23 +36,31 @@ namespace modbus_notmodbus
                 Misc.LogException($"Exception while instantiating Modbus client: {ex.Message}");
             }
 
-            deviceClient = DeviceClient.CreateFromConnectionString(deviceConnStr);
-            Twin twin = await deviceClient.GetTwinAsync();
-            if (twin.Properties.Desired["pollingInterval"] != PollingInterval)
+            deviceClient = DeviceClient.CreateFromConnectionString(iotHubDeviceConnStr);
+            Twin twin = new Twin();
+            try
             {
-                Misc.LogDebug("Setting new pollingInterval: " +
-                    $"{twin.Properties.Desired["pollingInterval"]} seconds");
-                try
+                twin = await deviceClient.GetTwinAsync();
+                if (twin.Properties.Desired["pollingInterval"] != PollingInterval)
                 {
-                    PollingInterval = twin.Properties.Desired["pollingInterval"];
+                    Misc.LogDebug("Setting new pollingInterval: " +
+                        $"{twin.Properties.Desired["pollingInterval"]} seconds");
+                    try
+                    {
+                        PollingInterval = twin.Properties.Desired["pollingInterval"];
+                    }
+                    catch (Exception ex)
+                    {
+                        Misc.LogException($"Unable to set pollingInterval: {ex.Message}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Misc.LogException($"Unable to set pollingInterval: {ex.Message}");
-                }
-            }
 
-            await deviceClient.SetDesiredPropertyUpdateCallbackAsync(desiredPropertyUpdateCallback, null);
+                await deviceClient.SetDesiredPropertyUpdateCallbackAsync(desiredPropertyUpdateCallback, null);
+            }
+            catch (Exception ex)
+            {
+                Misc.LogException(ex.Message);
+            }
         }
 
         public Task<TelemetryPoint> GetDataAsync()
@@ -68,7 +69,7 @@ namespace modbus_notmodbus
             Task<TelemetryPoint> t = Task.Run<TelemetryPoint>
             (async () =>
                 {
-                    string iotHubDeviceId = config.GetConnectionString("iotHubDeviceId");
+                    string iotHubDeviceId = AppSettings.iotHubDeviceId;
                     short[] voltage = Array.Empty<short>();
                     short[] current = Array.Empty<short>();
 
@@ -80,9 +81,9 @@ namespace modbus_notmodbus
                             modbusClientAlive = true;
                         }
                         voltage = await modbusClient.ReadRegistersAsync(
-                            voltageRegisterOffset, voltageRegisterCount);
+                            AppSettings.voltageRegisterOffset, AppSettings.voltageRegisterCount);
                         current = await modbusClient.ReadRegistersAsync(
-                            currentRegisterOffset, currentRegisterCount);
+                            AppSettings.currentRegisterOffset, AppSettings.currentRegisterCount);
                     }
                     catch (Exception ex)
                     {

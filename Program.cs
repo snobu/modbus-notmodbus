@@ -14,16 +14,17 @@ namespace modbus_notmodbus
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
                 Misc.LogException($"[GLOBAL EXCEPTION HANDLER] {eventArgs.ExceptionObject}");
 
+            AppSettings.ParseAppSettings();
+
             Misc.LogInfo("Press CTRL + C to exit the program.");
-
-            IConfiguration config = Misc.ParseConfig();
+            
             ModbusAdvocate modbusAdvocate = new ModbusAdvocate();
-
-            int modbusPort = Convert.ToInt32(config.GetConnectionString("modbusPort"));
-            await modbusAdvocate.InitAsync(config.GetConnectionString("modbusHost"),
-                                       modbusPort,
-                                       config.GetConnectionString("iotHubDeviceConnStr"),
-                                       PropertyUpdateCallback);
+            
+            await modbusAdvocate.InitAsync(
+                AppSettings.modbusHost,
+                AppSettings.modbusPort,
+                AppSettings.iotHubDeviceConnStr,
+                PropertyUpdateCallback);
 
             while (true)
             {

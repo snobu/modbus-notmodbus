@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -7,17 +8,6 @@ namespace modbus_notmodbus
 {
     public class Misc
     {
-        public static IConfiguration ParseConfig()
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables();
-
-            IConfiguration config = builder.Build();
-
-            return config;
-        }
 
         public static async Task WaitFor(TimeSpan t)
         {
