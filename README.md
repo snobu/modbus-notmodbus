@@ -1,6 +1,6 @@
 # modbus-notmodbus
 
-## Protocol translation for Modbus to MQTT/AMQP/HTTP for Azure IoT Hub
+## Protocol translation from Modbus to MQTT/AMQP/HTTP for Azure IoT Hub
 
 * MIT license
 * .NET Core 2.1+
