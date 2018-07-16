@@ -28,8 +28,9 @@
 Sleeping for 66 seconds /
 ```
 
-Polling interval can be controlled either through `appsettings.json` or device twin &mdash;
+Polling interval can be controlled either through `appsettings.json` or Device Twin &mdash;
 
+![Device Twin screenshot](twin.png)
 
 ### Modbus simulator (Windows only):
 
