@@ -7,6 +7,13 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="appsettings.json" DestinationFolder="$(OutDir)" />
+  </Target>
+  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="appsettings.json" DestinationFolder="$(PublishDir)" />
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Devices" Version="1.16.0" />
     <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.17.0" />
