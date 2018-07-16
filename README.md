@@ -5,6 +5,7 @@
 * MIT license
 * .NET Core 2.1+
 * Uses [ModbusTcp library](https://github.com/aviadmizrachi/ModbusTcp) from [Aviad Mizrachi](https://github.com/aviadmizrachi)
+* Easy configuration through `appsettings.json`
 
 ### Expected output &mdash;
 ```
@@ -26,6 +27,9 @@
 
 Sleeping for 66 seconds /
 ```
+
+Polling interval can be controlled either through `appsettings.json` or device twin &mdash;
+
 
 ### Modbus simulator (Windows only):
 
