@@ -7,7 +7,13 @@
 * Uses [ModbusTcp library](https://github.com/aviadmizrachi/ModbusTcp) from [Aviad Mizrachi](https://github.com/aviadmizrachi)
 * Easy configuration through `appsettings.json`
 
-### Expected output &mdash;
+
+### Configuration
+
+Configuration is read from `appsettings.json` at runtime.
+
+
+### Expected output
 ```
 [DEBUG] Setting new pollingInterval: 66 seconds
 [DEBUG] Serialized telemetry object:
