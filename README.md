@@ -10,7 +10,7 @@
 
 ### Configuration
 
-Configuration is read from `appsettings.json` at runtime.
+Configuration is read from `appsettings.json` at runtime. All values should be decimal, not hex.
 
 
 ### Expected output
