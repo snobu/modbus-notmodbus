@@ -12,7 +12,8 @@ namespace ModbusTcp.Protocol.Request
         public ModbusRequest16()
         {
             FunctionCode = 0x10;
-            UnitIdentifier = 0x01;
+            UnitIdentifier = 0xFF;
+            Console.WriteLine($"Unit Id set to {UnitIdentifier} for Function Code 0x10.");
         }
 
         public ModbusRequest16(int offset, float[] values)

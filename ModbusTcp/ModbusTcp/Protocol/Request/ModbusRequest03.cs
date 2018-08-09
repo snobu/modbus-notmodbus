@@ -11,7 +11,7 @@ namespace ModbusTcp.Protocol.Request
         {
             FunctionCode = 0x03;
             UnitIdentifier = 0xFF;
-            Console.WriteLine($"UnitIdentifier set to {this.UnitIdentifier}");
+            Console.WriteLine($"Unit Id set to {UnitIdentifier} for Function Code 0x03.");
         }
 
         public ModbusRequest03(int offset, int numberOfWords)
