@@ -70,8 +70,7 @@ namespace modbus_notmodbus
             (async () =>
                 {
                     string iotHubDeviceId = AppSettings.iotHubDeviceId;
-                    short[] voltage = Array.Empty<short>();
-                    short[] current = Array.Empty<short>();
+                    short[] testOffset = Array.Empty<short>();
 
                     try
                     {
@@ -80,10 +79,10 @@ namespace modbus_notmodbus
                             modbusClient.Init();
                             modbusClientAlive = true;
                         }
-                        voltage = await modbusClient.ReadRegistersAsync(
-                            AppSettings.voltageRegisterOffset, AppSettings.voltageRegisterCount);
-                        current = await modbusClient.ReadRegistersAsync(
-                            AppSettings.currentRegisterOffset, AppSettings.currentRegisterCount);
+
+                        testOffset = await modbusClient.ReadRegistersAsync(
+                            AppSettings.testOffset, AppSettings.testCount);
+
                     }
                     catch (Exception ex)
                     {
@@ -97,8 +96,7 @@ namespace modbus_notmodbus
                     TelemetryPoint sensorData = new TelemetryPoint()
                     {
                         iotHubDeviceId = iotHubDeviceId,
-                        voltage = voltage,
-                        current = current
+                        testOffset = testOffset
                     };
 
                     return sensorData;

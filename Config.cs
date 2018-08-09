@@ -10,10 +10,8 @@ namespace modbus_notmodbus
         public static string iotHubDeviceConnStr;
         public static string modbusHost;
         public static int modbusPort;
-        public static int voltageRegisterOffset;
-        public static int voltageRegisterCount;
-        public static int currentRegisterOffset;
-        public static int currentRegisterCount;
+        public static int testOffset;
+        public static int testCount;
         public static uint pollingInterval;
 
         public static bool ParseAppSettings()
@@ -40,14 +38,10 @@ namespace modbus_notmodbus
                 {
                         throw new ArgumentException();
                 }
-                setting = "voltageRegisterOffset";
-                voltageRegisterOffset = Convert.ToInt32(config.GetConnectionString("voltageRegisterOffset"));
-                setting = "voltageRegisterCount";
-                voltageRegisterCount = Convert.ToInt32(config.GetConnectionString("voltageRegisterCount"));
-                setting = "currentRegisterOffset";
-                currentRegisterOffset = Convert.ToInt32(config.GetConnectionString("currentRegisterOffset"));
-                setting = "currentRegisterCount";
-                currentRegisterCount = Convert.ToInt32(config.GetConnectionString("currentRegisterCount"));
+                setting = "testOffset";
+                testOffset = Convert.ToInt32(config.GetConnectionString("testOffset"));
+                setting = "testCount";
+                testCount = Convert.ToInt32(config.GetConnectionString("testCount"));
                 setting = "pollingInterval";
                 pollingInterval = Convert.ToUInt16(config.GetConnectionString("pollingInterval"));
             }

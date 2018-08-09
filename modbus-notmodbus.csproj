@@ -20,7 +20,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
-    <PackageReference Include="ModbusTcp" Version="1.0.3" />
+    <!-- <Reference Include="ModbusTcp">
+      <HintPath>ModbusTcp\ModbusTcp\bin\Debug\netstandard2.0\ModbusTcp.dll</HintPath>
+    </Reference> -->
   </ItemGroup>
 
 </Project>
