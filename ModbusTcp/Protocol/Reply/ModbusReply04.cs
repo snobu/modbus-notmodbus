@@ -3,7 +3,7 @@ using System.Net;
 
 namespace ModbusTcp.Protocol.Reply
 {
-    class ModbusReply03 : ModbusReponseBase
+    class ModbusReply04 : ModbusReponseBase
     {
         public byte UnitIdentifier;
 

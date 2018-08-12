@@ -44,5 +44,14 @@ namespace modbus_notmodbus
             Console.WriteLine($"[DEBUG] {s}");
             Console.ResetColor();
         }
+
+        public static void LogDisclaimer(string s)
+        {
+            Console.BackgroundColor = ConsoleColor.DarkMagenta;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"\n________ DISCLAIMER _______\n" +
+                           $"{s}\n___________________________\n");
+            Console.ResetColor();
+        }
     }
 }

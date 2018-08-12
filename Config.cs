@@ -10,8 +10,9 @@ namespace modbus_notmodbus
         public static string iotHubDeviceConnStr;
         public static string modbusHost;
         public static int modbusPort;
-        public static int testOffset;
-        public static int testCount;
+        public static int temperatureInputOffset;
+        public static int temperatureInputCount;
+        public static byte unitIdentifier;
         public static uint pollingInterval;
 
         public static bool ParseAppSettings()
@@ -38,10 +39,12 @@ namespace modbus_notmodbus
                 {
                         throw new ArgumentException();
                 }
-                setting = "testOffset";
-                testOffset = Convert.ToInt32(config.GetConnectionString("testOffset"));
-                setting = "testCount";
-                testCount = Convert.ToInt32(config.GetConnectionString("testCount"));
+                setting = "temperatureInputOffset";
+                temperatureInputOffset = Convert.ToInt32(config.GetConnectionString("temperatureInputOffset"));
+                setting = "temperatureInputCount";
+                temperatureInputCount = Convert.ToInt32(config.GetConnectionString("temperatureInputCount"));
+                setting = "unitIdentifier";
+                unitIdentifier = Convert.ToByte(config.GetConnectionString("unitIdentifier"));
                 setting = "pollingInterval";
                 pollingInterval = Convert.ToUInt16(config.GetConnectionString("pollingInterval"));
             }

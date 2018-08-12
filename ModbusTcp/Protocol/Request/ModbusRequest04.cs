@@ -5,20 +5,20 @@ using System.Runtime.InteropServices;
 namespace ModbusTcp.Protocol.Request
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    class ModbusRequest03 : ModbusBase
+    class ModbusRequest04 : ModbusBase
     {
-        public ModbusRequest03()
+        public ModbusRequest04()
         {
-            FunctionCode = 0x03;
-            UnitIdentifier = 0xFF;
-            Console.WriteLine($"Unit Id set to {UnitIdentifier} for Function Code 0x03.");
+            FunctionCode = 0x04;
+            UnitIdentifier = 0x01;
         }
 
-        public ModbusRequest03(int offset, int numberOfWords)
+        public ModbusRequest04(int offset, int numberOfWords, byte unitIdentifier)
             : this()
         {
             ReferenceNumber = (short)offset;
             WordCount = (short)numberOfWords;
+            this.UnitIdentifier = unitIdentifier;
         }
 
         [MarshalAs(UnmanagedType.U1)]
@@ -35,7 +35,7 @@ namespace ModbusTcp.Protocol.Request
 
         public override byte[] ToNetworkBuffer()
         {
-            var copy = (ModbusRequest03)MemberwiseClone();
+            var copy = (ModbusRequest04)MemberwiseClone();
             copy.Header = Header.Clone();
 
             copy.Header.Length = IPAddress.HostToNetworkOrder(Header.Length);

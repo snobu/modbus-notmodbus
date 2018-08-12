@@ -16,6 +16,8 @@ namespace modbus_notmodbus
 
             AppSettings.ParseAppSettings();
 
+            Misc.LogDisclaimer("PROOF OF CONCEPT CODE.     "+
+                "\nNOT FOR PRODUCTION USE.    ");
             Misc.LogInfo("Press CTRL + C to exit the program.");
             
             ModbusAdvocate modbusAdvocate = new ModbusAdvocate();
@@ -29,10 +31,15 @@ namespace modbus_notmodbus
             while (true)
             {
                 TelemetryPoint sensorData = await modbusAdvocate.GetDataAsync();
+
                 if (sensorData != null)
+                {
                     await modbusAdvocate.SendMessageToIotHubAsync(sensorData);
+                }
                 else
+                {
                     await Misc.WaitFor(TimeSpan.FromSeconds(15));
+                }
             }
 
             async Task PropertyUpdateCallback(TwinCollection twinProperties, object userContext)

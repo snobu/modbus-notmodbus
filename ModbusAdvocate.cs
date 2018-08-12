@@ -63,55 +63,43 @@ namespace modbus_notmodbus
             }
         }
 
-        public Task<TelemetryPoint> GetDataAsync()
+        public async Task<TelemetryPoint> GetDataAsync()
         {
-            var ct = new CancellationToken();
-            Task<TelemetryPoint> t = Task.Run<TelemetryPoint>
-            (async () =>
-                {
-                    string iotHubDeviceId = AppSettings.iotHubDeviceId;
-                    short[] testOffset = Array.Empty<short>();
-
-                    try
-                    {
-                        if (!modbusClientAlive)
-                        {
-                            modbusClient.Init();
-                            modbusClientAlive = true;
-                        }
-
-                        testOffset = await modbusClient.ReadRegistersAsync(
-                            AppSettings.testOffset, AppSettings.testCount);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Misc.LogException($"Exception while calling ReadRegistersAsync(): {ex.Message}\n" +
-                            $"Stack Trace --\n{ex.StackTrace}");
-                        modbusClientAlive = false;
-
-                        return null;
-                    }
-
-                    TelemetryPoint sensorData = new TelemetryPoint()
-                    {
-                        iotHubDeviceId = iotHubDeviceId,
-                        testOffset = testOffset
-                    };
-
-                    return sensorData;
-                }, ct);
-
-            // The Modbus library does not time-bound its calls,
-            // abort task if execution takes longer than 14 seconds.
-            if (t.Wait(14000, ct))
+            string iotHubDeviceId = AppSettings.iotHubDeviceId;
+            decimal temperature;
+            try
             {
-                t.Dispose();
-                return t;
-            }
-            Misc.LogTimeout("Reading data from Modbus took too long. Aborting task.");
+                if (!modbusClientAlive)
+                {
+                    modbusClient = new ModbusClient(
+                        AppSettings.modbusHost, AppSettings.modbusPort);
+                    modbusClient.Init();
+                    modbusClientAlive = true;
+                }
 
-            return Task.FromResult<TelemetryPoint>(null);
+                float[] modbusReading = await modbusClient.ReadRegistersFloatsAsync(
+                    AppSettings.temperatureInputOffset,
+                    AppSettings.temperatureInputCount,
+                    AppSettings.unitIdentifier);
+                temperature = decimal.Round(
+                    (decimal)modbusReading[0], 3); // 3 decimals
+            }
+            catch (Exception ex)
+            {
+                Misc.LogException($"Exception while calling ReadRegistersAsync(): {ex.Message}\n" +
+                    $"Stack Trace --\n{ex.StackTrace}");
+                modbusClientAlive = false;
+
+                return null;
+            }
+
+            TelemetryPoint sensorData = new TelemetryPoint()
+            {
+                iotHubDeviceId = iotHubDeviceId,
+                temperature = temperature
+            };
+
+            return sensorData;
         }
 
         public async Task<bool> SendMessageToIotHubAsync(object data)
