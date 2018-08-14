@@ -1,3 +1,4 @@
 {
-    "editor.codeLens": false
+    "editor.codeLens": false,
+    "dotnet-test-explorer.testProjectPath": "*.tests"
 }
