@@ -12,6 +12,8 @@ namespace modbus_notmodbus
         public static int modbusPort;
         public static int temperatureInputOffset;
         public static int temperatureInputCount;
+        public static int digitalInputOffset;
+        public static int digitalInputCount;
         public static byte unitIdentifier;
         public static uint pollingInterval;
 
@@ -43,6 +45,10 @@ namespace modbus_notmodbus
                 temperatureInputOffset = Convert.ToInt32(config.GetConnectionString("temperatureInputOffset"));
                 setting = "temperatureInputCount";
                 temperatureInputCount = Convert.ToInt32(config.GetConnectionString("temperatureInputCount"));
+                setting = "digitalInputOffset";
+                digitalInputOffset = Convert.ToInt32(config.GetConnectionString("digitalInputOffset"));
+                setting = "digitalInputCount";
+                digitalInputCount = Convert.ToInt32(config.GetConnectionString("digitalInputCount"));
                 setting = "unitIdentifier";
                 unitIdentifier = Convert.ToByte(config.GetConnectionString("unitIdentifier"));
                 setting = "pollingInterval";

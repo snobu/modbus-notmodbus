@@ -8,21 +8,23 @@ using ModbusTcp.Protocol.Reply;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using System.Collections;
 
 namespace ModbusTcp
 {
     public class ModbusClient
     {
-        private const int defaultSocketTimeout = 10 * 1000; // 10 seconds
+        private int socketTimeout;
         private readonly int port;
         private TcpClient tcpClient;
         private NetworkStream transportStream;
         private readonly string ipAddress;
 
-        public ModbusClient(string ipAddress, int port, int socketTimeoutInMs = defaultSocketTimeout)
+        public ModbusClient(string ipAddress, int port, int socketTimeout = 10000)
         {
             this.ipAddress = ipAddress;
             this.port = port;
+            this.socketTimeout = socketTimeout;
         }
 
         public void Init()
@@ -54,7 +56,7 @@ namespace ModbusTcp
             var request = new ModbusRequest04(offset, count, unitIdentifier);
             var buffer = request.ToNetworkBuffer();
 
-            using (var cancellationTokenSource = new CancellationTokenSource(defaultSocketTimeout))
+            using (var cancellationTokenSource = new CancellationTokenSource(socketTimeout))
             {
                 using(cancellationTokenSource.Token.Register(() => transportStream.Close()))
                 {
@@ -64,6 +66,50 @@ namespace ModbusTcp
 
             var response = await ReadResponseAsync<ModbusReply04>();
             return ReadAsShort(response.Data);
+        }
+
+        /// <summary>
+        /// Reads digital input status (Function Code 02)
+        /// </summary>
+        /// <param name="offset">The register offset</param>
+        /// <param name="count">Number of words to read</param>
+        /// <returns>Digital inputs on/off status as array of bools</returns>
+        public async Task<bool[]> ReadInputStatusAsync(int offset, int count, byte unitIdentifier)
+        {
+            if (tcpClient == null)
+                throw new Exception("Object not intialized");
+
+
+            var request = new ModbusRequest02(offset, count, unitIdentifier);
+            var buffer = request.ToNetworkBuffer();
+
+            using (var cancellationTokenSource = new CancellationTokenSource(socketTimeout))
+            {
+                using(cancellationTokenSource.Token.Register(() => transportStream.Close()))
+                {
+                    await transportStream.WriteAsync(buffer, 0, buffer.Length, cancellationTokenSource.Token);
+                }
+            }
+
+            var response = await ReadResponseAsync<ModbusReply02>();
+
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+
+            Console.Write($"\n[DEBUG] Digital Input Status request bytes:  ");
+            foreach (byte b in buffer)
+            {
+                Console.Write($"{b.ToString("X2")}  ");
+            }
+
+            Console.Write($"\n[DEBUG] Digital Input Status response (value) bytes:  ");
+            foreach (byte b in response.Data)
+            {
+                Console.Write($"{b.ToString("X2")}  ");
+            }
+
+            Console.ResetColor();
+
+            return ReadAsBool(response.Data);
         }
 
         /// <summary>
@@ -81,7 +127,7 @@ namespace ModbusTcp
             var request = new ModbusRequest04(offset, count, unitIdentifier);
 
             var buffer = request.ToNetworkBuffer();
-            using (var cancellationTokenSource = new CancellationTokenSource(defaultSocketTimeout))
+            using (var cancellationTokenSource = new CancellationTokenSource(socketTimeout))
             {
                 using(cancellationTokenSource.Token.Register(() => transportStream.Close()))
                 {
@@ -93,20 +139,19 @@ namespace ModbusTcp
 
             Console.BackgroundColor = ConsoleColor.DarkGray;
 
-            Console.Write($"\n[DEBUG] Request bytes:  ");
+            Console.Write($"\n[DEBUG] Analog Input request bytes:  ");
             foreach (byte b in buffer)
             {
                 Console.Write($"{b.ToString("X2")}  ");
             }
 
-            Console.Write($"\n[DEBUG] Response (value) bytes:  ");
+            Console.Write($"\n[DEBUG] Analog Input response (value) bytes:  ");
             foreach (byte b in response.Data)
             {
                 Console.Write($"{b.ToString("X2")}  ");
             }
 
             Console.ResetColor();
-            Console.Write("\n");
             
             return ReadAsFloat(response.Data);
         }
@@ -153,6 +198,18 @@ namespace ModbusTcp
             return output.ToArray();
         }
 
+        private bool[] ReadAsBool(byte[] data)
+        {
+            var output = new List<bool>();
+            BitArray bitArray = new BitArray(data);
+            for (int i =0 ; i < bitArray.Length; i++)
+            {
+                output.Add(bitArray.Get(i));
+            }
+
+            return output.ToArray();
+        }
+
         private async Task<T> ReadResponseAsync<T>() where T : ModbusReponseBase
         {
             var headerBytes = await ReadFromBuffer(ModbusHeader.FixedLength);
@@ -177,7 +234,7 @@ namespace ModbusTcp
             while (remainder > 0)
             {
                 int readBytes = 0;
-                using (var cancellationTokenSource = new CancellationTokenSource(defaultSocketTimeout))
+                using (var cancellationTokenSource = new CancellationTokenSource(socketTimeout))
                 {
                     using(cancellationTokenSource.Token.Register(() => transportStream.Close()))
                     {

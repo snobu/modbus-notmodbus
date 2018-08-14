@@ -67,22 +67,31 @@ namespace modbus_notmodbus
         {
             string iotHubDeviceId = AppSettings.iotHubDeviceId;
             decimal temperature;
+            float[] analogInput;
+            bool[] digitalInput;
+
             try
             {
                 if (!modbusClientAlive)
                 {
                     modbusClient = new ModbusClient(
-                        AppSettings.modbusHost, AppSettings.modbusPort);
+                        AppSettings.modbusHost,
+                        AppSettings.modbusPort);
                     modbusClient.Init();
                     modbusClientAlive = true;
                 }
 
-                float[] modbusReading = await modbusClient.ReadRegistersFloatsAsync(
-                    AppSettings.temperatureInputOffset,
-                    AppSettings.temperatureInputCount,
-                    AppSettings.unitIdentifier);
+                analogInput = await modbusClient.ReadRegistersFloatsAsync(
+                   AppSettings.temperatureInputOffset,
+                   AppSettings.temperatureInputCount,
+                   AppSettings.unitIdentifier);
                 temperature = decimal.Round(
-                    (decimal)modbusReading[0], 3); // 3 decimals
+                   (decimal)analogInput[0], 3); // 3 decimals
+
+                digitalInput = await modbusClient.ReadInputStatusAsync(
+                    AppSettings.digitalInputOffset, // 10001 + offset
+                    AppSettings.digitalInputCount,
+                    AppSettings.unitIdentifier);
             }
             catch (Exception ex)
             {
@@ -96,7 +105,8 @@ namespace modbus_notmodbus
             TelemetryPoint sensorData = new TelemetryPoint()
             {
                 iotHubDeviceId = iotHubDeviceId,
-                temperature = temperature
+                temperature = temperature,
+                digitalInput = digitalInput
             };
 
             return sensorData;

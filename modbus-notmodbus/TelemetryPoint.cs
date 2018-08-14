@@ -4,5 +4,6 @@ namespace modbus_notmodbus
     {
         public string iotHubDeviceId;
         public decimal temperature;
+        public bool[] digitalInput;
     }
 }
