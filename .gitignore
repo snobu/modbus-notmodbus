@@ -1,8 +1,6 @@
-# Sorry Bojan
 *.sln
 .vs
 
 bin
 obj
-.vscode
 .DS_Store
