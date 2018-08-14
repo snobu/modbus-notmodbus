@@ -2,15 +2,14 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Sdk;
+using Shouldly;
 
 namespace ModbusTcp.Tests
 {
-    public class Tests
+    public class SocketTests
     {
         [Fact]
         public void SocketTimeoutTest()
@@ -60,6 +59,16 @@ namespace ModbusTcp.Tests
                 server.Server.Close();
                 server.Server.Dispose();
             }
+        }
+    }
+
+    public class DummyTests
+    {
+        [Fact]
+        public void Dummy1()
+        {
+            (3+2).ShouldBeOfType<int>().ShouldBeGreaterThan(1);
+            (1234).ShouldNotBeAssignableTo<UInt32>();
         }
     }
 }
