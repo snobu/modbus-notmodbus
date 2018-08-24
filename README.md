@@ -36,7 +36,7 @@ Sleeping for 66 seconds /
 
 Polling interval can be controlled either through `appsettings.json` or Device Twin &mdash;
 
-<img src="twin.png" alt="Device Twin screenshot" width="600">
+![Device Twin screenshot](modbus-notmodbus/twin.png)
 
 ### Modbus simulator (Windows only):
 
