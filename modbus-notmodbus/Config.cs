@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 
@@ -41,18 +42,13 @@ namespace modbus_notmodbus
                 {
                         throw new ArgumentException();
                 }
-                setting = "temperatureInputOffset";
-                temperatureInputOffset = Convert.ToInt32(config.GetConnectionString("temperatureInputOffset"));
-                setting = "temperatureInputCount";
-                temperatureInputCount = Convert.ToInt32(config.GetConnectionString("temperatureInputCount"));
-                setting = "digitalInputOffset";
-                digitalInputOffset = Convert.ToInt32(config.GetConnectionString("digitalInputOffset"));
-                setting = "digitalInputCount";
-                digitalInputCount = Convert.ToInt32(config.GetConnectionString("digitalInputCount"));
                 setting = "unitIdentifier";
                 unitIdentifier = Convert.ToByte(config.GetConnectionString("unitIdentifier"));
                 setting = "pollingInterval";
                 pollingInterval = Convert.ToUInt16(config.GetConnectionString("pollingInterval"));
+
+                List<ModbusAnalogInput> modbusAnalogInput = new List<ModbusAnalogInput>();
+                config.GetSection("ModbusAnalogInput").Bind(modbusAnalogInput);
             }
             catch (Exception ex)
             {
@@ -62,6 +58,13 @@ namespace modbus_notmodbus
 
             return true;
         }
+    }
+
+    public class ModbusAnalogInput
+    {
+        public string label { get; set; }
+        public int offset { get; set; }
+        public int count { get; set; }
     }
 
 }
