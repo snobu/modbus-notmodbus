@@ -67,7 +67,7 @@ namespace modbus_notmodbus
         public async Task<TelemetryPoint> GetDataAsync()
         {
             string iotHubDeviceId = AppSettings.iotHubDeviceId;
-            var analogInput = new Dictionary<string, decimal>();
+            var analogInput = new Dictionary<string, float>();
 
             try
             {
@@ -87,10 +87,15 @@ namespace modbus_notmodbus
                         input.count,
                         AppSettings.unitIdentifier);
 
+                    string semiFloat = String.Format("{0:0.0000}", analogInputReading[0]);
+                    var value = float.Parse(
+                        semiFloat,
+                        System.Globalization.NumberStyles.Any);
 
                     analogInput.Add(
                         input.label,
-                        decimal.Round((decimal)analogInputReading[0], 3));
+                        value);
+                        
                 }
             }
             catch (Exception ex)

@@ -5,6 +5,6 @@ namespace modbus_notmodbus
     public class TelemetryPoint
     {
         public string iotHubDeviceId;
-        public Dictionary<string, decimal> analogInput;
+        public Dictionary<string, float> analogInput;
     }
 }
