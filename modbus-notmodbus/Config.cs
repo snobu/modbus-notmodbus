@@ -17,6 +17,7 @@ namespace modbus_notmodbus
         public static int digitalInputCount;
         public static byte unitIdentifier;
         public static uint pollingInterval;
+        public static List<ModbusAnalogInput> modbusAnalogInput;
 
         public static bool ParseAppSettings()
         {
@@ -40,14 +41,14 @@ namespace modbus_notmodbus
                 modbusPort = Convert.ToInt32(config.GetConnectionString("modbusPort"));
                 if (modbusPort >= 65535 || modbusPort < 1)
                 {
-                        throw new ArgumentException();
+                    throw new ArgumentException("modbusPort must be a TCP port number.");
                 }
                 setting = "unitIdentifier";
                 unitIdentifier = Convert.ToByte(config.GetConnectionString("unitIdentifier"));
                 setting = "pollingInterval";
                 pollingInterval = Convert.ToUInt16(config.GetConnectionString("pollingInterval"));
 
-                List<ModbusAnalogInput> modbusAnalogInput = new List<ModbusAnalogInput>();
+                modbusAnalogInput = new List<ModbusAnalogInput>();
                 config.GetSection("ModbusAnalogInput").Bind(modbusAnalogInput);
             }
             catch (Exception ex)

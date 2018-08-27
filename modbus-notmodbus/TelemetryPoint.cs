@@ -1,9 +1,10 @@
+using System.Collections.Generic;
+
 namespace modbus_notmodbus
 {
     public class TelemetryPoint
     {
         public string iotHubDeviceId;
-        public decimal temperature;
-        public bool[] digitalInput;
+        public Dictionary<string, decimal> analogInput;
     }
 }

@@ -150,7 +150,8 @@ namespace ModbusTcp
             {
                 Console.Write($"{b.ToString("X2")}  ");
             }
-
+            Console.Write("\n");
+            
             Console.ResetColor();
             
             return ReadAsFloat(response.Data);
