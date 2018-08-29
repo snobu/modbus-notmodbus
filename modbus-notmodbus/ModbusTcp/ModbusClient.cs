@@ -145,8 +145,6 @@ namespace ModbusTcp
                 Console.Write($"{b.ToString("X2")}  ");
             }
 
-            // TODO: Add test for this seq
-            // response.Data = new byte[] {0x7F, 0x7D, 0x40, 0x23};
             Console.Write($"\n[DEBUG] Analog Input response (value) bytes:  ");
             foreach (byte b in response.Data)
             {
