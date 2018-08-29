@@ -38,7 +38,17 @@ namespace modbus_notmodbus
             }
 
             deviceClient = DeviceClient.CreateFromConnectionString(iotHubDeviceConnStr);
+            // var backoff = new ExponentialBackoff(
+            //     10,
+            //     TimeSpan.FromSeconds(10),
+            //     TimeSpan.FromSeconds(60),
+            //     TimeSpan.FromSeconds(15)
+            // );
+            // IRetryPolicy retryPolicy = backoff;
+            // deviceClient.SetRetryPolicy(retryPolicy);
+            
             Twin twin = new Twin();
+            
             try
             {
                 twin = await deviceClient.GetTwinAsync();
@@ -95,7 +105,7 @@ namespace modbus_notmodbus
                     analogInput.Add(
                         input.label,
                         value);
-                        
+
                 }
             }
             catch (Exception ex)

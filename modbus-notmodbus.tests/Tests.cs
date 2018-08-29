@@ -5,7 +5,10 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using modbus_notmodbus;
 using Shouldly;
+using Xunit.Abstractions;
+using System.Text;
 
 namespace ModbusTcp.Tests
 {
@@ -19,7 +22,7 @@ namespace ModbusTcp.Tests
             int MODBUS_CALL_TIMEOUT = 3000;
 
             Int32 port = 50222;
-            string v4Loopback = ("127.0.0.1");
+            string v4Loopback = "127.0.0.1";
 
             TcpListener server = new TcpListener(IPAddress.Parse(v4Loopback), port);
             server.Start();
@@ -62,13 +65,63 @@ namespace ModbusTcp.Tests
         }
     }
 
-    public class DummyTests
+    public class NumberConversionTests
     {
-        [Fact]
-        public void Dummy1()
+        private readonly ITestOutputHelper output;
+
+        public NumberConversionTests(ITestOutputHelper output)
         {
-            (3+2).ShouldBeOfType<int>().ShouldBeGreaterThan(1);
-            (1234).ShouldNotBeAssignableTo<UInt32>();
+            this.output = output;
+        }
+
+        [Fact]
+        // Check if we can read extreme values from wire with ModbusTcp library
+        public void ExtremeValueTest()
+        {
+            byte[] mockResponseBytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xFF, 0x04, 0x04, 0x7F, 0x7D, 0x40, 0x24 };
+            float compareBytes = float.Parse("3.366277E+38", System.Globalization.NumberStyles.Any);
+            // Let's mock a Modbus server (slave)
+            Int32 port = 50223;
+            string v4Loopback = "127.0.0.1";
+            TcpListener server = new TcpListener(IPAddress.Parse(v4Loopback), port);
+
+            server.Start();
+            float[] reading = new float[1];
+
+            var t = Task.Run(() =>
+            {
+                ModbusClient modbusClient = new ModbusClient(v4Loopback, port);
+                modbusClient.Init();
+                reading = modbusClient.ReadRegistersFloatsAsync(100, 2, 0x00).GetAwaiter().GetResult();
+            });
+            var tcpClient = server.AcceptTcpClient();
+
+            NetworkStream stream = tcpClient.GetStream();
+
+            stream.Write(mockResponseBytes, 0, mockResponseBytes.Length);
+            stream.Flush();
+
+            t.Wait();
+
+            var whatWeExpect = BitConverter.GetBytes(compareBytes);
+            var whatWeGot = BitConverter.GetBytes(reading[0]);
+
+            string compare = String.Empty;
+            for (var i = whatWeExpect.Length-1; i >= 0; i--)
+            {
+                compare += String.Format("x{0:X}", whatWeExpect[i]);
+            }
+
+            output.WriteLine(compare);
+            compare = String.Empty;
+
+            for (var i = whatWeGot.Length-1; i >= 0; i--)
+            {
+                compare += String.Format("y{0:X}", whatWeGot[i]);
+            }
+
+            output.WriteLine(compare);
+            Assert.Equal(compareBytes, reading[0]);
         }
     }
 }
