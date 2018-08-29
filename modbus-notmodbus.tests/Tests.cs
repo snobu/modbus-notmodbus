@@ -78,7 +78,7 @@ namespace ModbusTcp.Tests
         // Check if we can read extreme values from wire with ModbusTcp library
         public void ExtremeValueTest()
         {
-            byte[] mockResponseBytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xFF, 0x04, 0x04, 0x7F, 0x7D, 0x40, 0x24 };
+            byte[] mockResponseBytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xFF, 0x04, 0x04, 0x7F, 0x7D, 0x40, 0x23 };
             float compareBytes = float.Parse("3.366277E+38", System.Globalization.NumberStyles.Any);
             // Let's mock a Modbus server (slave)
             Int32 port = 50223;
